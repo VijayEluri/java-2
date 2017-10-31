@@ -71,6 +71,7 @@ public class SAP {
     // a common ancestor that participates in shortest ancestral path; -1 if no
     // such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
+        reset();
         computeDistances(v, distFromV);
         computeDistances(w, distFromW);
         return findAncestor(distFromV, distFromW);
@@ -109,11 +110,22 @@ public class SAP {
         In in = new In(args[0]);
         Digraph G = new Digraph(in);
         SAP sap = new SAP(G);
+
         while (!StdIn.isEmpty()) {
-            int v = StdIn.readInt();
-            int w = StdIn.readInt();
-            int length = sap.length(v, w);
-            int ancestor = sap.ancestor(v, w);
+            StdOut.printf("Find ancestor for set(v1 v2) and set(w1, w2) \n");
+            int v1 = StdIn.readInt();
+            int v2 = StdIn.readInt();
+            int w1 = StdIn.readInt();
+            int w2 = StdIn.readInt();
+
+            Queue<Integer> q1 = new Queue<>();
+            q1.enqueue(v1);
+            q1.enqueue(v2);
+            Queue<Integer> q2 = new Queue<>();
+            q2.enqueue(w1);
+            q2.enqueue(w2);
+            int length = sap.length(q1, q2);
+            int ancestor = sap.ancestor(q1, q2);
             StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
         }
     }
