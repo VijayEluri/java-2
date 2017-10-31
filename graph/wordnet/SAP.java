@@ -1,5 +1,6 @@
 // File: SAP.java
-// Desc: Data type to compute the common ancestor of 2 vertices or 2 set of vertices
+// Desc: Data type to compute the common ancestor for two set of vertices
+//       in a digraph
 
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.StdOut;
@@ -7,31 +8,45 @@ import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Digraph;
 
+// Class to compute Shortest Ancestral Path SAP
+// for two set of synonym sets
 public class SAP {
     private Digraph g;
     private int distFromV[];
     private int distFromW[];
 
-    // constructor takes a digraph (not necessarily a DAG)
+    // Constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
         g = G;
         distFromV = new int[g.V()];
         distFromW = new int[g.V()];
     }
 
-    // length of shortest ancestral path between v and w; -1 if no such path
+    // Determine length of shortest ancestral path between v and w;
+    // -1 if no such path
     public int length(int v, int w) {
+        if (!(v >=0 && v < g.V())) {
+            throw new IllegalArgumentException("Invalid vertex v " + v);
+        }
+        if (!(w >=0 && w < g.V())) {
+            throw new IllegalArgumentException("Invalid vertex w " + w);
+        }
         int ancestor_vertex = ancestor(v, w);
-        if (ancestor_vertex == -1)
-        {
+        if (ancestor_vertex == -1) {
             return -1;
         }
         return distFromV[ancestor_vertex] + distFromW[ancestor_vertex];
     }
 
-    // a common ancestor of v and w that participates in a shortest ancestral
-    // path; -1 if no such path
+    // Find common ancestor of v and w that participates in a shortest ancestral path;
+    // -1 if no such path
     public int ancestor(int v, int w) {
+        if (!(v >=0 && v < g.V())) {
+            throw new IllegalArgumentException("Invalid vertex v " + v);
+        }
+        if (!(w >=0 && w < g.V())) {
+            throw new IllegalArgumentException("Invalid vertex w " + w);
+        }
         reset();
         Queue<Integer> q1 = new Queue<>();
         q1.enqueue(v);
@@ -42,42 +57,38 @@ public class SAP {
         return findAncestor(distFromV, distFromW);
     }
 
-    int findAncestor(final int dist1[], final int dist2[])
-    {
-        int min_idx = -1;
-        int min_dist = Integer.MAX_VALUE;
-        for (int i = 0; i < dist1.length; i++)
-        {
-            if (dist1[i] > -1 && dist2[i] > -1 && min_dist > dist1[i] + dist2[i])
-            {
-                min_dist = dist1[i] + dist2[i];
-                min_idx = i;
-            }
-        }
-        return min_idx;
-    }
-
-    // length of shortest ancestral path between any vertex in v and any
-    // vertex in w; -1 if no such path
+    // Determine length of shortest ancestral path between any vertex in v and any vertex in w;
+    //  -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
+        if (v == null) {
+            throw new IllegalArgumentException("Iterable v is null");
+        }
+        if (w == null) {
+            throw new IllegalArgumentException("Iterable w is null");
+        }
         int ancestor_vertex = ancestor(v, w);
-        if (ancestor_vertex == -1)
-        {
+        if (ancestor_vertex == -1) {
             return -1;
         }
         return distFromV[ancestor_vertex] + distFromW[ancestor_vertex];
     }
 
-    // a common ancestor that participates in shortest ancestral path; -1 if no
-    // such path
+    // Find a common ancestor that participates in shortest ancestral path;
+    // -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
+        if (v == null) {
+            throw new IllegalArgumentException("Iterable v is null");
+        }
+        if (w == null) {
+            throw new IllegalArgumentException("Iterable w is null");
+        }
         reset();
         computeDistances(v, distFromV);
         computeDistances(w, distFromW);
         return findAncestor(distFromV, distFromW);
     }
 
-    // Reset
+    // Reset distance arrays to new state.
     private void reset() {
         for (int x = 0; x < g.V(); x++) {
             distFromV[x] = -1;
@@ -105,7 +116,20 @@ public class SAP {
         }
     }
 
-    // do unit testing of this class
+    // Find the shortest common ancestor hiven 2 computed distance arrays.
+    private int findAncestor(final int dist1[], final int dist2[]) {
+        int min_idx = -1;
+        int min_dist = Integer.MAX_VALUE;
+        for (int i = 0; i < dist1.length; i++) {
+            if (dist1[i] > -1 && dist2[i] > -1 && min_dist > dist1[i] + dist2[i]) {
+                min_dist = dist1[i] + dist2[i];
+                min_idx = i;
+            }
+        }
+        return min_idx;
+    }
+
+    // Do simple unit testing of this class
     public static void main(String[] args) {
         In in = new In(args[0]);
         Digraph G = new Digraph(in);
