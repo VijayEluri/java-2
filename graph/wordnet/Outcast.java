@@ -6,23 +6,18 @@ public class Outcast {
     private final WordNet wordnet;
 
     // constructor takes a WordNet object
-    public Outcast(WordNet wordnet)
-    {
+    public Outcast(WordNet wordnet) {
         this.wordnet = wordnet;
     }
 
     // Given an array of WordNet nouns, return an outcast
-    public String outcast(String[] nouns)
-    {
+    public String outcast(String[] nouns) {
         // d[i] =  dist(Ai, A1)   +   dist(Ai, A2)   +   ...   +   dist(Ai, An)
         int[] d = new int[nouns.length];
-        for (int i = 0; i < d.length; i++)
-        {
+        for (int i = 0; i < d.length; i++) {
             d[i] = 0;
-            for (int j = 0; j < nouns.length; j++)
-            {
-                if (j != i)
-                {
+            for (int j = 0; j < nouns.length; j++) {
+                if (j != i) {
                     d[i] += wordnet.distance(nouns[i], nouns[j]);
                 }
             }
@@ -31,17 +26,14 @@ public class Outcast {
         return nouns[maxIdx];
     }
 
-    private int findMaxIndex(int[] d)
-    {
+    private int findMaxIndex(int[] d) {
         int maxIdx = 0;
-        for (int i = 0; i < d.length; i++)
-        {
-            if (d[i] > d[maxIdx])
-            {
+        for (int i = 0; i < d.length; i++) {
+            if (d[i] > d[maxIdx]) {
                 maxIdx = i;
             }
         }
-        return  maxIdx;
+        return maxIdx;
     }
 
     // see test client below
@@ -54,5 +46,4 @@ public class Outcast {
             StdOut.println(args[t] + ": " + outcast.outcast(nouns));
         }
     }
-
 }

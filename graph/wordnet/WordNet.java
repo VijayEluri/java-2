@@ -1,38 +1,35 @@
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.SeparateChainingHashST;
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.Queue;
 
 public class WordNet {
 
-    private final SeparateChainingHashST<String, Integer> nounToSynNetId;
+    private final SeparateChainingHashST<String, Queue<Integer>> nounToSynNetIds;
     private final SeparateChainingHashST<Integer, String> synNetIdToSynNet;
     private final Digraph wordNetGraph;
     private final SAP sap;
 
     // Constructor takes the name of the two input files
-    public WordNet(String synsets, String hypernyms)
-    {
-        nounToSynNetId = new SeparateChainingHashST<>();
+    public WordNet(String synsets, String hypernyms) {
+        nounToSynNetIds = new SeparateChainingHashST<>();
         synNetIdToSynNet = new SeparateChainingHashST<>();
 
         In synsetIn = new In(synsets);
 
         // Number of synsets
         int synsetNum = 0;
-        while (synsetIn.hasNextLine())
-        {
+        while (synsetIn.hasNextLine()) {
             String synsetLine = synsetIn.readLine();
             String[] tokens = synsetLine.split(",");
 
             int id = Integer.parseInt(tokens[0].trim());
             synNetIdToSynNet.put(id, tokens[1]);
 
-            String[] nouns =  tokens[1].split(" ");
-            for (String noun : nouns)
-            {
-                nounToSynNetId.put(noun, id);
+            String[] nouns = tokens[1].split(" ");
+            for (String noun : nouns) {
+                put(nounToSynNetIds, noun, id);
             }
             synsetNum++;
         }
@@ -40,16 +37,13 @@ public class WordNet {
 
         wordNetGraph = new Digraph(synsetNum);
         In hypernymIn = new In(hypernyms);
-        while (hypernymIn.hasNextLine())
-        {
+        while (hypernymIn.hasNextLine()) {
             String hypernymLine = hypernymIn.readLine();
             String[] tokens = hypernymLine.split(",");
 
             int v = Integer.parseInt(tokens[0].trim());
-            for (int i = 1; i < tokens.length; i++)
-            {
-                if (tokens[i] != null && !(tokens[i].trim().isEmpty()))
-                {
+            for (int i = 1; i < tokens.length; i++) {
+                if (tokens[i] != null && !(tokens[i].trim().isEmpty())) {
                     int w = Integer.parseInt(tokens[i]);
                     wordNetGraph.addEdge(v, w);
                 }
@@ -59,63 +53,64 @@ public class WordNet {
         sap = new SAP(wordNetGraph);
     }
 
+    private void put(SeparateChainingHashST<String, Queue<Integer>> nounToSynIds, String noun, int id) {
+        Queue<Integer> ids;
+        if (nounToSynIds.contains(noun)) {
+            ids = nounToSynIds.get(noun);
+        } else {
+            ids = new Queue<>();
+        }
+        ids.enqueue(id);
+        nounToSynIds.put(noun, ids);
+    }
+
     // returns all WordNet nouns
-    public Iterable<String> nouns()
-    {
-        return nounToSynNetId.keys();
+    public Iterable<String> nouns() {
+        return nounToSynNetIds.keys();
     }
 
     // is the word a WordNet noun?
-    public boolean isNoun(String word)
-    {
-        if (word == null || word.trim().isEmpty())
-        {
+    public boolean isNoun(String word) {
+        if (word == null || word.trim().isEmpty()) {
             throw new IllegalArgumentException("Illegal argument word");
         }
 
-        return nounToSynNetId.contains(word);
+        return nounToSynNetIds.contains(word);
     }
 
     // distance between nounA and nounB (defined below)
-    public int distance(String nounA, String nounB)
-    {
-        if (nounA == null || nounA.trim().isEmpty() || !nounToSynNetId.contains(nounA))
-        {
+    public int distance(String nounA, String nounB) {
+        if (nounA == null || nounA.trim().isEmpty() || !nounToSynNetIds.contains(nounA)) {
             throw new IllegalArgumentException("Illegal argument nounA");
         }
 
-        if (nounB == null || nounB.trim().isEmpty() || !nounToSynNetId.contains(nounB))
-        {
+        if (nounB == null || nounB.trim().isEmpty() || !nounToSynNetIds.contains(nounB)) {
             throw new IllegalArgumentException("Illegal argument nounB");
         }
 
-        int v = nounToSynNetId.get(nounA);
-        int w = nounToSynNetId.get(nounB);
+        Iterable<Integer> v = nounToSynNetIds.get(nounA);
+        Iterable<Integer> w = nounToSynNetIds.get(nounB);
         return sap.length(v, w);
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
-    public String sap(String nounA, String nounB)
-    {
-        if (nounA == null || nounA.trim().isEmpty() || !nounToSynNetId.contains(nounA))
-        {
+    public String sap(String nounA, String nounB) {
+        if (nounA == null || nounA.trim().isEmpty() || !nounToSynNetIds.contains(nounA)) {
             throw new IllegalArgumentException("Illegal argument nounA");
         }
 
-        if (nounB == null || nounB.trim().isEmpty() || !nounToSynNetId.contains(nounB))
-        {
+        if (nounB == null || nounB.trim().isEmpty() || !nounToSynNetIds.contains(nounB)) {
             throw new IllegalArgumentException("Illegal argument nounB");
         }
-        int v = nounToSynNetId.get(nounA);
-        int w = nounToSynNetId.get(nounB);
+        Iterable<Integer> v = nounToSynNetIds.get(nounA);
+        Iterable<Integer> w = nounToSynNetIds.get(nounB);
         int ancestorId = sap.ancestor(v, w);
         return synNetIdToSynNet.get(ancestorId);
     }
 
     // Do unit testing of this class
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         String synsetsFileName = args[0];
         String hypernymsFileName = args[1];
         WordNet wordNet = new WordNet(synsetsFileName, hypernymsFileName);

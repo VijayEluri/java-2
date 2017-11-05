@@ -25,10 +25,10 @@ public class SAP {
     // Determine length of shortest ancestral path between v and w;
     // -1 if no such path
     public int length(int v, int w) {
-        if (!(v >=0 && v < g.V())) {
+        if (!(v >= 0 && v < g.V())) {
             throw new IllegalArgumentException("Invalid vertex v " + v);
         }
-        if (!(w >=0 && w < g.V())) {
+        if (!(w >= 0 && w < g.V())) {
             throw new IllegalArgumentException("Invalid vertex w " + w);
         }
         int ancestor_vertex = ancestor(v, w);
@@ -41,10 +41,10 @@ public class SAP {
     // Find common ancestor of v and w that participates in a shortest ancestral path;
     // -1 if no such path
     public int ancestor(int v, int w) {
-        if (!(v >=0 && v < g.V())) {
+        if (!(v >= 0 && v < g.V())) {
             throw new IllegalArgumentException("Invalid vertex v " + v);
         }
-        if (!(w >=0 && w < g.V())) {
+        if (!(w >= 0 && w < g.V())) {
             throw new IllegalArgumentException("Invalid vertex w " + w);
         }
         reset();
