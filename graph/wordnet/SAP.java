@@ -17,20 +17,14 @@ public class SAP {
 
     // Constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
-        g = G;
+        g = new Digraph(G);
         distFromV = new int[g.V()];
         distFromW = new int[g.V()];
     }
 
-    // Determine length of shortest ancestral path between v and w;
-    // -1 if no such path
+    // Return length of shortest ancestral path between v and w;
+    // Return -1 if no such path
     public int length(int v, int w) {
-        if (!(v >= 0 && v < g.V())) {
-            throw new IllegalArgumentException("Invalid vertex v " + v);
-        }
-        if (!(w >= 0 && w < g.V())) {
-            throw new IllegalArgumentException("Invalid vertex w " + w);
-        }
         int ancestor_vertex = ancestor(v, w);
         if (ancestor_vertex == -1) {
             return -1;
@@ -38,8 +32,8 @@ public class SAP {
         return distFromV[ancestor_vertex] + distFromW[ancestor_vertex];
     }
 
-    // Find common ancestor of v and w that participates in a shortest ancestral path;
-    // -1 if no such path
+    // Return the common ancestor of v and w that participates in a shortest ancestral path;
+    // Return -1 if no such path
     public int ancestor(int v, int w) {
         if (!(v >= 0 && v < g.V())) {
             throw new IllegalArgumentException("Invalid vertex v " + v);
@@ -88,7 +82,7 @@ public class SAP {
         return findAncestor(distFromV, distFromW);
     }
 
-    // Reset distance arrays to new state.
+    // Reset distFromV and distFromW arrays ti initial values.
     private void reset() {
         for (int x = 0; x < g.V(); x++) {
             distFromV[x] = -1;
@@ -96,27 +90,27 @@ public class SAP {
         }
     }
 
-    // Compute shortest distances from set x to other vertices using BFS
-    // and store values in distFromX
-    private void computeDistances(Iterable<Integer> s, int distFromX[]) {
+    // Compute shortest distances from set s to other vertices using BFS
+    // and store values in distFromS
+    private void computeDistances(Iterable<Integer> s, int distFromS[]) {
         Queue<Integer> q = new Queue<>();
         for (int x : s) {
             q.enqueue(x);
-            distFromX[x] = 0;
+            distFromS[x] = 0;
         }
         while (!q.isEmpty()) {
             int v = q.dequeue();
             for (int w : g.adj(v)) {
                 // vertex w hasn't been visited
-                if (distFromX[w] == -1) {
+                if (distFromS[w] == -1) {
                     q.enqueue(w);
-                    distFromX[w] = distFromX[v] + 1;
+                    distFromS[w] = distFromS[v] + 1;
                 }
             }
         }
     }
 
-    // Find the shortest common ancestor hiven 2 computed distance arrays.
+    // Find the shortest common ancestor given 2 computed distance arrays.
     private int findAncestor(final int dist1[], final int dist2[]) {
         int min_idx = -1;
         int min_dist = Integer.MAX_VALUE;
@@ -133,6 +127,7 @@ public class SAP {
     public static void main(String[] args) {
         In in = new In(args[0]);
         Digraph G = new Digraph(in);
+        in.close();
         SAP sap = new SAP(G);
 
         while (!StdIn.isEmpty()) {
