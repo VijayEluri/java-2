@@ -1,5 +1,4 @@
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.LinearProbingHashST;
+import edu.princeton.cs.algs4.*;
 
 public class BaseballElimination {
 
@@ -89,7 +88,65 @@ public class BaseballElimination {
 
     // is given team eliminated?
     public boolean isEliminated(String team) {
+        int x = teams.get(team);
+        LinearProbingHashST<String, Integer> vertices = makeNetworkVertices(n, x);
+        int s = vertices.get("s");
+        int t = vertices.get("t");
+
+        FlowNetwork network = new FlowNetwork(vertices.size());
+
+        for (int i = 0; i < n; i++) {
+            if (i != x) {
+                for (int j = i + 1; j < n; j++) {
+                    if (j != x) {
+                        int gameIj = vertices.get(i + "-" + j);
+                        network.addEdge(new FlowEdge(s, gameIj, game[i][j]));
+
+                        int teamI = vertices.get("t" + i);
+                        int teamJ = vertices.get("t" + j);
+
+                        network.addEdge(new FlowEdge(gameIj, teamI, Double.POSITIVE_INFINITY));
+                        network.addEdge(new FlowEdge(gameIj, teamJ, Double.POSITIVE_INFINITY));
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (i != x) {
+                int teamI = vertices.get("t" + i);
+                network.addEdge(new FlowEdge(teamI, t, win[x] + remain[x] - win[i]));
+            }
+        }
+        StdOut.println(network.toString());
+
         return false;
+    }
+
+    // n is the number of teams
+    // x is the team to check for elimination.
+    // Return map of vertex name and vertex number for all vertices of the test FlowNetwork
+    private LinearProbingHashST<String, Integer> makeNetworkVertices(int n, int x) {
+        LinearProbingHashST<String, Integer> vertices = new LinearProbingHashST<>();
+        int vertex_id = 0;
+        vertices.put("s", vertex_id++);
+        for (int i = 0; i < n; i++) {
+            if (i != x) {
+                for (int j = i + 1; j < n; j++) {
+                    if (j != x) {
+                        String vertex_name = i + "-" + j;
+                        vertices.put(vertex_name, vertex_id++);
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (i != x) {
+                vertices.put("t" + i, vertex_id++);
+            }
+        }
+        vertices.put("t", vertex_id++);
+        return vertices;
     }
 
     // subset R of teams that eliminates given team; null if not eliminated
@@ -99,12 +156,8 @@ public class BaseballElimination {
 
     // Do unit testing with assert
     public static void main(String[] args) {
-        String filename = "teams29.txt";
+        String filename = "teams4.txt";
         BaseballElimination test = new BaseballElimination(filename);
-        assert test.wins("Houston") == 114;
-        assert test.wins("Sacramento") == 124;
-        assert test.losses("Miami") == 112;
-        assert test.losses("Orlando") == 133;
-        assert test.against("Atlanta", "Boston") == 7;
+        test.isEliminated("Philadelphia");
     }
 }
