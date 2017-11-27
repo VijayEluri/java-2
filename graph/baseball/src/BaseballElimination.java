@@ -1,5 +1,7 @@
 import edu.princeton.cs.algs4.*;
 
+// Compute team elimination using
+// max flow problem formulation.
 public class BaseballElimination {
 
     // number of teams in the division
@@ -89,12 +91,56 @@ public class BaseballElimination {
     // is given team eliminated?
     public boolean isEliminated(String team) {
         int x = teams.get(team);
+        if (triviallyEliminated(x) != null) {
+            return true;
+        }
+
         LinearProbingHashST<String, Integer> vertices = makeNetworkVertices(n, x);
+        FlowNetwork network = new FlowNetwork(vertices.size());
+        setupFlowNetwork(x, vertices, network);
         int s = vertices.get("s");
         int t = vertices.get("t");
+        FordFulkerson maxflow = new FordFulkerson(network, s, t);
+        for (FlowEdge edge : network.adj(s)) {
+            if (edge.flow() < edge.capacity()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    // subset R of teams that eliminates given team; null if not eliminated
+    public Iterable<String> certificateOfElimination(String team) {
+        int x = teams.get(team);
+        // team y trivially eliminated team x
+        String teamY = triviallyEliminated(x);
+        if (teamY != null) {
+            Queue<String> queue = new Queue<>();
+            queue.enqueue(teamY);
+            return queue;
+        }
+
+        LinearProbingHashST<String, Integer> vertices = makeNetworkVertices(n, x);
         FlowNetwork network = new FlowNetwork(vertices.size());
+        setupFlowNetwork(x, vertices, network);
+        int s = vertices.get("s");
+        int t = vertices.get("t");
+        FordFulkerson maxflow = new FordFulkerson(network, s, t);
+        for (FlowEdge edge : network.adj(s)) {
+            if (edge.flow() < edge.capacity()) {
+                // find the set R of teams that eliminate x
+                System.out.println(maxflow.value());
+                System.out.println(maxflow.inCut(0));
+            }
+        }
+        return null;
+    }
 
+    // Set up flow network to test if x is eliminated.
+    private void setupFlowNetwork(int x, LinearProbingHashST<String, Integer> vertices, FlowNetwork network)
+    {
+        int s = vertices.get("s");
+        int t = vertices.get("t");
         for (int i = 0; i < n; i++) {
             if (i != x) {
                 for (int j = i + 1; j < n; j++) {
@@ -118,9 +164,18 @@ public class BaseballElimination {
                 network.addEdge(new FlowEdge(teamI, t, win[x] + remain[x] - win[i]));
             }
         }
-        StdOut.println(network.toString());
+    }
 
-        return false;
+    // Return the team name that trivially eliminated team x
+    // Return null if x is not trivially eliminated
+    private String triviallyEliminated(int x) {
+        for (String team : teams.keys()) {
+            int i = teams.get(team);
+            if (i != x && win[x] + remain[x] < win[i]) {
+                return team;
+            }
+        }
+        return null;
     }
 
     // n is the number of teams
@@ -149,15 +204,19 @@ public class BaseballElimination {
         return vertices;
     }
 
-    // subset R of teams that eliminates given team; null if not eliminated
-    public Iterable<String> certificateOfElimination(String team) {
-        return null;
-    }
-
     // Do unit testing with assert
     public static void main(String[] args) {
-        String filename = "teams4.txt";
-        BaseballElimination test = new BaseballElimination(filename);
-        test.isEliminated("Philadelphia");
+        BaseballElimination division = new BaseballElimination(args[0]);
+        for (String team : division.teams()) {
+            if (division.isEliminated(team)) {
+                StdOut.print(team + " is eliminated by the subset R = { ");
+                for (String t : division.certificateOfElimination(team)) {
+                    StdOut.print(t + " ");
+                }
+                StdOut.println("}");
+            } else {
+                StdOut.println(team + " is not eliminated");
+            }
+        }
     }
 }
