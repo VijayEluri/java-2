@@ -1,7 +1,6 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.TST;
 
 // Boggle solver, an immutable data type, that finds all valid words for given Boggle board
 public class BoggleSolver {
@@ -16,12 +15,12 @@ public class BoggleSolver {
         }
     }
 
-    TST<Boolean> dict;
+    Tst<Boolean> dict;
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // Assume each word in the dictionary contains only the uppercase letters A through Z.
     public BoggleSolver(String[] dictionary) {
-        dict = new TST<>();
+        dict = new Tst<>();
         for (String word : dictionary) {
             dict.put(word, true);
         }
@@ -122,7 +121,7 @@ public class BoggleSolver {
         visited[i][j] = true;
         prefix.append(board.getLetter(i, j));
         String testWord = prefix.toString();
-        if (dict.contains(testWord)) {
+        if (dict.isExists(testWord)) {
             if (dict.get(prefix.toString()) != null) {
                 allValidWords.enqueue(prefix.toString());
             }
