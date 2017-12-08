@@ -1,9 +1,6 @@
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.Queue;
-import edu.princeton.cs.algs4.SET;
-import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.*;
 
-// Boggle solver, an immutable data type, that finds all valid words for given Boggle board
+// Boggle solver, an immutable data type, to find all valid words for given Boggle board
 public class BoggleSolver {
     private class Cube {
         // row i, column j
@@ -31,8 +28,8 @@ public class BoggleSolver {
         }
     }
 
-    private Queue<Cube>[][] computeAdj(BoggleBoard board) {
-        Queue<Cube>[][] adj = (Queue<Cube>[][]) new Queue[board.rows()][board.cols()];
+    private LinearProbingHashST<Integer, Queue<Cube>>  computeAdj(BoggleBoard board) {
+        LinearProbingHashST<Integer, Queue<Cube>> adj = new LinearProbingHashST<>();
         for (int i = 0; i < board.rows(); i++) {
             for (int j = 0; j < board.cols(); j++) {
                 Queue<Cube> queue = new Queue<>();
@@ -62,7 +59,8 @@ public class BoggleSolver {
                 if (j < board.cols() - 1) {
                     queue.enqueue(new Cube(i, j + 1));
                 }
-                adj[i][j] = queue;
+                int index = i*board.cols() + j;
+                adj.put(index, queue);
             }
         }
         return adj;
@@ -76,7 +74,7 @@ public class BoggleSolver {
         }
         int rows = board.rows();
         int cols = board.cols();
-        Queue<Cube>[][] adj = computeAdj(board);
+        LinearProbingHashST<Integer, Queue<Cube>> adj = computeAdj(board);
         SET<String> allValidWords = new SET<>();
 
         // for each letter c:
@@ -94,7 +92,7 @@ public class BoggleSolver {
         return allValidWords;
     }
 
-    private void dfs(BoggleBoard board, int i, int j, Iterable<Cube>[][] adj, boolean[][] visited, SET<String> allValidWords, StringBuilder prefix) {
+    private void dfs(BoggleBoard board, int i, int j, LinearProbingHashST<Integer, Queue<Cube>> adj, boolean[][] visited, SET<String> allValidWords, StringBuilder prefix) {
         visited[i][j] = true;
         char c = board.getLetter(i, j);
         if (c == 'Q') {
@@ -107,7 +105,7 @@ public class BoggleSolver {
             if (testWord.length() > 2 && dict.get(testWord) != null) {
                 allValidWords.add(testWord);
             }
-            for (Cube x : adj[i][j]) {
+            for (Cube x : adj.get(i*board.cols()+j)) {
                 if (!visited[x.i][x.j]) {
                     dfs(board, x.i, x.j, adj, visited, allValidWords, prefix);
                     visited[x.i][x.j] = false;
