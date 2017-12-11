@@ -36,6 +36,32 @@ public class BurrowsWheeler {
     // apply Burrows-Wheeler inverse transform, reading from standard input and writing to standard output
     public static void inverseTransform()
     {
+        // read the input
+        int first = BinaryStdIn.readInt();
+        String s = BinaryStdIn.readString();
+        int n = s.length();
+        char[] list = s.toCharArray();
+        int[] translate = new int[n];
+        int[] sums = new int[R + 1];
+        for(int k=0; k < list.length; k++){
+            sums[list[k]+1]++;
+        }
+        for(int k=1; k < sums.length; k++){
+            sums[k] += sums[k-1];
+        }
+        for(int k=0; k < list.length; k++){
+            int index = sums[list[k]]++;
+            translate[index] = k;
+        }
+        char[] reconstruct = new char[list.length];
+        for (int k = 0; k <list.length; k++) {
+            first = translate[first];
+            reconstruct[k] = list[first];
+        }
+        for (char c : reconstruct) {
+            BinaryStdOut.write(c, 8);
+        }
+        BinaryStdOut.close();
     }
 
     // if args[0] is '-', apply Burrows-Wheeler transform
@@ -48,6 +74,9 @@ public class BurrowsWheeler {
         // 128 bits equivalent to:
         // 3
         // ARD!RCAAAABB
+        if (args == null || args.length < 1) {
+            throw new IllegalArgumentException("Input args null");
+        }
 
         if      (args[0].equals("-")) transform();
         else if (args[0].equals("+")) inverseTransform();
