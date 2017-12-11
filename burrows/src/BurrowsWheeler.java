@@ -53,12 +53,12 @@ public class BurrowsWheeler {
             int index = sums[list[k]]++;
             translate[index] = k;
         }
-        char[] reconstruct = new char[list.length];
+        char[] inverse = new char[list.length];
         for (int k = 0; k <list.length; k++) {
             first = translate[first];
-            reconstruct[k] = list[first];
+            inverse[k] = list[first];
         }
-        for (char c : reconstruct) {
+        for (char c : inverse) {
             BinaryStdOut.write(c, 8);
         }
         BinaryStdOut.close();

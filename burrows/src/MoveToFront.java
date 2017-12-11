@@ -11,9 +11,9 @@ public class MoveToFront {
         int n = s.length();
         char[] list = s.toCharArray();
 
-        int[] myIndexes = new int[R];
-        for (int k = 0; k < myIndexes.length; k++) {
-            myIndexes[k] = k;
+        int[] index = new int[R];
+        for (int k = 0; k < index.length; k++) {
+            index[k] = k;
         }
 
         char[] copy = new char[n];
@@ -22,13 +22,13 @@ public class MoveToFront {
                 throw new IllegalArgumentException("encode with error at index " + k + " value " + list[k]);
             }
 
-            for (int j = 0; j < myIndexes.length; j++) {
-                if (myIndexes[j] == list[k]) {
+            for (int j = 0; j < index.length; j++) {
+                if (index[j] == list[k]) {
                     copy[k] = (char) j;
                     for (int i = j; i >= 1; i--) {
-                        myIndexes[i] = myIndexes[i - 1];
+                        index[i] = index[i - 1];
                     }
-                    myIndexes[0] = list[k];
+                    index[0] = list[k];
                     break;
                 }
             }
@@ -46,19 +46,19 @@ public class MoveToFront {
         int n = s.length();
         char[] list = s.toCharArray();
 
-        int[] myIndexes = new int[R];
-        for (int k = 0; k < myIndexes.length; k++) {
-            myIndexes[k] = k;
+        int[] index = new int[R];
+        for (int k = 0; k < index.length; k++) {
+            index[k] = k;
         }
 
         char[] copy = new char[list.length];
         for (int k = 0; k < list.length; k++) {
-            int save = myIndexes[list[k]];
+            int save = index[list[k]];
             copy[k] = (char) save;
             for (int j = list[k]; j > 0; j--) {
-                myIndexes[j] = myIndexes[j - 1];
+                index[j] = index[j - 1];
             }
-            myIndexes[0] = save;
+            index[0] = save;
         }
 
         for (int i = 0; i < n; i++) {
