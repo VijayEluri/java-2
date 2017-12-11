@@ -16,24 +16,21 @@ public class BurrowsWheeler {
         String s = BinaryStdIn.readString();
         CircularSuffixArray suffixArray = new CircularSuffixArray(s);
         int n = suffixArray.length();
-        int indices[] = new int[n];
         int first = 0;
         for (int i = 0; i < n; i++) {
-            indices[i] = suffixArray.index(i);
-            if (indices[i] == 0)
+            if (suffixArray.index(i) == 0)
             {
                 first = i;
             }
         }
         BinaryStdOut.write(first);
-        for (int i : indices)
+        for (int i = 0; i < n; i++)
         {
-            int idx = (indices[i] + n-1) % n;
+            int idx = (suffixArray.index(i) + n-1) % n;
             char c = s.charAt(idx);
             BinaryStdOut.write(c, 8);
         }
         BinaryStdOut.close();
-        return;
     }
 
     // apply Burrows-Wheeler inverse transform, reading from standard input and writing to standard output
